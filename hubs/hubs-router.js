@@ -19,6 +19,7 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/hubs/:id
 router.get('/:id', async (req, res) => {
   try {
     const hub = await Hubs.findById(req.params.id);
@@ -85,6 +86,34 @@ router.put('/:id', async (req, res) => {
 });
 
 // add an endpoint that returns all the messages for a hub
+router.get('/:id/messages', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const messages = await Hubs.findHubMessages(id);
+    res.status(200).json(messages);
+  } catch (error) {
+    // log errors to database
+    console.log(error);
+    res.status(500).json({
+      message: 'Error finding the hub messages'
+    });
+  }
+});
+
 // add an endpoint for adding new message to a hub
+router.post('/:id/messages', async (req, res) => {
+  const messageInfo = { ...req.body, hub_id: req.params.id };
+
+  try {
+    const savedMessage = await Hubs.addMessage(messageInfo);
+    res.status(201).json(savedMessage);
+  } catch (error) {
+    // log errors to database
+    console.log(error);
+    res.status(500).json({
+      message: 'Error finding the hub message using ID'
+    });
+  }
+});
 
 module.exports = router;
